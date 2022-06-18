@@ -7,8 +7,6 @@ namespace App;
 class Db
 {
     private \PDO $dbh;
-    private string $schema;
-    private string $table;
 
     public function __construct(array $params=_Config::database)
     {
