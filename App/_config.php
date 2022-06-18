@@ -8,11 +8,13 @@ class _Config
 	//параметры подключения к базе данных 
 	const database = [
             'host' => '',
-            'port' => 3306, 	
+            'port' => , 	
             'db' => '',        
             'login' => '',
             'passwd' => '',
-			'type' => 'mysql' //в переменной type указывается pgsql - если БД postgresql или mysql - для БД mysql
+	    'type' => 'mysql', //в переменной type указывается pgsql - если БД postgresql или mysql - для БД mysql
+	    'schema' => 'repository', //только при использовании POSTGRESQL
+            'table' => 'repo'	
         ];
 }
 
