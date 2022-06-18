@@ -62,7 +62,7 @@ class Db
             $chk=$this->query("SELECT exists(select schema_name FROM information_schema.schemata WHERE schema_name = $schema) as found;");
             if ($chk[0]['found']==0 || $chk[0]['found']===false){
                 //создаем БД
-                $sql="CREATE SCHEMA repository AUTHORIZATION $dbuser;";
+                $sql="CREATE SCHEMA $schema AUTHORIZATION $dbuser;";
                 $this->query($sql);
             }
             //проверка таблицы
