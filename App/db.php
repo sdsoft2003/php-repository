@@ -7,6 +7,8 @@ namespace App;
 class Db
 {
     private \PDO $dbh;
+    private string $schema;
+    private string $table;
 
     public function __construct(array $params=_Config::database)
     {
@@ -18,7 +20,7 @@ class Db
         $this->dbh = new \PDO($params['type'] . ':host=' . $params['host'] . ';dbname=' . $params['db'], $params['login'], $params['passwd'], [\PDO::ATTR_PERSISTENT => false]);
         $this->dbh->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $this->dbh->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-        $this->checkRepositoryTable($params['db'],'repo',$params['login'], $params['type']);
+        $this->checkRepositoryTable($params['db'],$params['schema'],$params['table'],$params['login'], $params['type']);
     }
     //проверка параметров для работы с БД
     private function checkParam(array $prm):bool {
@@ -27,8 +29,10 @@ class Db
         if (empty($prm['passwd']) || !isset($prm['passwd'])) return false;
         if (empty($prm['db']) || !isset($prm['db'])) return false;
         if (empty($prm['type']) || !isset($prm['type'])) return false;
+        if (empty($prm['table']) || !isset($prm['table'])) return false;
         if (strlen($prm['type']) !=5) return false;
         if (mb_stristr('pgsql',$prm['type'])===false && mb_stristr('mysql',$prm['type'])===false) return false;
+        if (mb_stristr('pgsql',$prm['type'])===false && (empty($prm['schema']) || !isset($prm['schema']))) return false;
         return true;
     }
     //проверяем существоание БД если нет создаем ее
@@ -45,7 +49,7 @@ class Db
        return true;
     }
     //проверяем существоание в БД таблицы если нет создаем ее
-    private function checkRepositoryTable(string $dbname, string $table, string $dbuser, string $type) {
+    private function checkRepositoryTable(string $dbname, string $schema='', string $table, string $dbuser, string $type) {
         if (mb_stristr('mysql',$type)!==false) {
             $res = $this->query("SHOW TABLES FROM `$dbname` like '$table';");
             if ($res === false || empty($res)) {
@@ -57,17 +61,17 @@ class Db
         //если БД Postgres то проверяем и создаем еще и схему
         if (mb_stristr('pgsql',$type)!==false) {
             //проверка схемы
-            $chk=$this->query("SELECT exists(select schema_name FROM information_schema.schemata WHERE schema_name = 'repository') as found;");
+            $chk=$this->query("SELECT exists(select schema_name FROM information_schema.schemata WHERE schema_name = $schema) as found;");
             if ($chk[0]['found']==0 || $chk[0]['found']===false){
                 //создаем БД
                 $sql="CREATE SCHEMA repository AUTHORIZATION $dbuser;";
                 $this->query($sql);
             }
             //проверка таблицы
-            $chk=$this->query("SELECT EXISTS(SELECT table_name FROM information_schema.tables WHERE table_schema = 'repository' AND table_name='repo') as found;");
+            $chk=$this->query("SELECT EXISTS(SELECT table_name FROM information_schema.tables WHERE table_schema = $schema AND table_name=$table) as found;");
             if ($chk[0]['found']==0 || $chk[0]['found']===false){
                 //создаем БД
-                $sql="CREATE TABLE repository.repo(id serial NOT NULL, stroka text, resultat text, PRIMARY KEY (id)) WITH (OIDS = FALSE) TABLESPACE pg_default; ALTER TABLE IF EXISTS repository.repo OWNER to $dbuser;";
+                $sql="CREATE TABLE $schema.$table(id serial NOT NULL, stroka text, resultat text, PRIMARY KEY (id)) WITH (OIDS = FALSE) TABLESPACE pg_default; ALTER TABLE IF EXISTS repository.repo OWNER to $dbuser;";
                 $this->dbh->exec($sql);
             }
         }
