@@ -3,7 +3,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .'routeam'. DIRECTORY_SEPARATOR. 'App' .DIRECTORY_SEPARATOR .'_config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR. 'App' .DIRECTORY_SEPARATOR .'_config.php';
 
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
