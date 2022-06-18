@@ -13,7 +13,7 @@ class FindRepository
     public function __construct()
     {
         $this->apiurl = _Config::githubapiurl;
-        mb_stristr('mysql',_Config::database['type'])!==false ? $this->table='repo' : $this->table='repository.repo';
+        mb_stristr('mysql',_Config::database['type'])!==false ? $this->table=_Config::database['table'] : $this->table=_Config::database['schema']._Config::database['table'];
     }
 
     public function setDb(DB $db):self {
