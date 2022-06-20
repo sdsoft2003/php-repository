@@ -58,7 +58,7 @@ class FindRepository
         $resdb = $this->db->query("SELECT resultat FROM $this->table WHERE stroka LIKE '%".$search."%';");
         $result=[];
         if (!empty($resdb)) {
-            foreach ($resdb[0]['resultat'] as $item) {
+            foreach ($resdb as $item) {
                 foreach (json_decode($item['resultat'], true) as $card){
                     $result[]=$card;
                 }
