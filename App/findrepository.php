@@ -56,7 +56,15 @@ class FindRepository
     //поиск материала в БД
     private function findInDB(string $search) {
         $resdb = $this->db->query("SELECT resultat FROM $this->table WHERE stroka LIKE '%".$search."%';");
-        return !empty($resdb) ? json_decode($resdb[0]['resultat'],true) : [];
+        $result=[];
+        if (!empty($resdb)) {
+            foreach ($resdb[0]['resultat'] as $item) {
+                foreach (json_decode($item['resultat'], true) as $card){
+                    $result[]=$card;
+                }
+            }
+        }
+        return $result;
     }
     //запись результата поиска в БД
     private function saveSearch(string $search, array $items){
