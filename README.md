@@ -1,53 +1,181 @@
-# php-repository
-Поиск проектов на Github, сохранение в локальную базу данных, вывод результатов на экран.
+Примеры запросов и ответов postman
 
-Технологии PHP, Bootstrap.
+МЕТОД GET
+ЗАПРОС http://yiiapi/api/web/v1/requests
+ОТВЕТ {
+    "success": true,
+    "data": [
+        {
+            "id": "1",
+            "name": "test",
+            "email": "test@test.ru",
+            "status": "active",
+            "message": "проверка задачи",
+            "comment": null,
+            "created_at": "2023-08-22 00:00:00",
+            "updated_at": "0000-00-00 00:00:00"
+        },
+        {
+            "id": "2",
+            "name": "subziro",
+            "email": "trust@gmail.com",
+            "status": "resolved",
+            "message": "проверка даты и времени",
+            "comment": "все работает",
+            "created_at": "2023-08-22 11:05:56",
+            "updated_at": "2023-08-22 11:11:23"
+        },
+        {
+            "id": "4",
+            "name": null,
+            "email": null,
+            "status": "resolved",
+            "message": null,
+            "comment": null,
+            "created_at": "2023-08-22 11:07:47",
+            "updated_at": "2023-08-22 11:08:54"
+        },
+        {
+            "id": "5",
+            "name": null,
+            "email": null,
+            "status": "active",
+            "message": null,
+            "comment": null,
+            "created_at": "2023-08-22 18:49:24",
+            "updated_at": "0000-00-00 00:00:00"
+        }
+    ]
+}
 
-Описание:
-Для хранения локальных данных можно использовать MySql, MariaDB, PostgreSql. При разработке не использовались PHP фреймворки: yii2, symfony5, laravel8 или более новые.
+запрос http://yiiapi/api/web/v1/requests/12
+ответ {
+    "success": true,
+    "data": {
+        "id": "12",
+        "name": "testing",
+        "email": "gnom@mail.ru",
+        "status": "active",
+        "message": "\"проверка встаки новой задачи с пробелами\"",
+        "comment": null,
+        "created_at": "2023-08-22 19:22:27",
+        "updated_at": "0000-00-00 00:00:00"
+    }
+}
 
-Веб страница:
+запрос http://yiiapi/api/web/v1/requests/12212121
+ответ {
+    "success": true,
+    "data": null
+}
 
-  Приложение, использует bootstrap4. На первой странице расположены: поле ввода текста, кнопка «Поиск».
-  
-Реализован следующий механизм:
-1.	Пользователь вводит в поле поиска текст, нажимает кнопку «Поиск»
-2.	Приложение производит поиск введенных данных по локальной бд
-3.	Если данные не найдены, то производится отправка запроса на API Github  https://api.github.com/search/repositories?q=subject, где subject – введенный текст
-4.	Полученный ответ сохраняется в локальную бд данных в формате: строка поиска, результат (json)
-5.	Производится отдача страницы с результатами
 
-При показе страницы с результатами сохранятся в поле поиска введенный текст.
-Результат выводится в виде карточек (bootstrap cards). В карточке отображатся:
-•	Имя проекта 
-•	Автор
-•	Кол-во звезд (Stargazers)
-•	Кол-во просмотров (Watchers)
-При нажатии на карточку или ссылку "перейти" осуществляется переход на репозиторий Github
+запрос http://yiiapi/api/web/v1/requests/12zxczxczxcvadxcvasd
+ответ {
+    "success": false,
+    "error": "Номера заявок имеют только цифры",
+    "param": {
+        "id": "12zxczxczxcvadxcvasd"
+    },
+    "method": "GET"
+}
+фильтрация по статусу (active, resolved)
+запрос http://yiiapi/api/web/v1/requests?filter=active
+ответ {
+    "success": true,
+    "data": [
+        {
+            "id": "1",
+            "name": "test",
+            "email": "test@test.ru",
+            "status": "active",
+            "message": "проверка задачи",
+            "comment": null,
+            "created_at": "2023-08-22 00:00:00",
+            "updated_at": "0000-00-00 00:00:00"
+        },
+        {
+            "id": "13",
+            "name": "div",
+            "email": "gnoxm@mail.ru",
+            "status": "active",
+            "message": "тестовая проверка",
+            "comment": null,
+            "created_at": "2023-08-22 19:48:43",
+            "updated_at": "0000-00-00 00:00:00"
+        }
+    ]
+}
 
-REST API
-Реализован REST API для:
-1.	Осуществления поиска POST /api/find , строка поиска передается в теле (body) запроса. Механизм поиска такой же, как и при поиске со страницы в браузере.
-2.	Просмотр списка поисков GET /api/find – выдает результаты в виде json массива с объектами, в составе которых:
-•	Имя проекта 
-•	Автор
-•	Кол-во звезд (Stargazers)
-•	Кол-во просмотров (Watchers)
-•	Ссылка на репозиторий
-3.	Реализована функция сброса результатов поиска по поисковой строке DELETE /api/find/{id}, где {id} – идентификатор поиска. 
-Например запрос через curl: curl -X DELETE -d '3' --url https://ваш сервер/api/find
-После выполнения отдается (json) со статусом операции. Для включения методов DELETE, PUT на сервере nginx необходимо в настройке conf файла сервера исправить и добавить строку:
-index index.html index.htm; //здесь убираем index.php
-эту строку добавляем.
-try_files $uri /index.php$is_args$args;
-При этом приходится в адресной строке явно указывать файл index.php, например: curl -X DELETE -d '3' --url https://ваш сервер/api/find/index.php
 
-Информация при настройке приложения:
+МЕТОД POST
+запрос http://yiiapi/api/web/v1/requests?name=testing&&email=gnom@mail.ru
+ответ {
+    "success": false,
+    "error": "Для обработки задачи требуется имя и email пользователя, а также сообщение",
+    "param": {
+        "name": "testing",
+        "email": "gnom@mail.ru"
+    },
+    "method": "POST"
+}
 
-  В приложении реализован метод автоматической подгрузки классов. /includes/autoload.php
-$class_dir - указывается каталог, где хранятся классы, далее происходит рекурсивный поиск класса в самом каталоге и его подкаталагах.
-Важно!:имя файла класса должно быть таким же как и имя класса! Регистр имени файла не важен!
+запрос http://yiiapi/api/web/v1/requests?name=div&&email=gnoxm@mail.ru&&message=тестовая проверка
+ответ {
+    "success": true,
+    "data": "Задача с номером 13 создана."
+}
 
-  При подключении к БД реализован механизм проверки существоавания указанной в настройках базы. Если база не создана то создается, далее происходит аналогичное действие по проверке и подключению mysql(таблицы)/pgsql(схемы.таблицы) БД. 
 
-Спасибо за внимание.
+
+МЕТОД PUT
+запрос http://yiiapi/api/web/v1/requests/13?comment=проверка 13
+ответ {
+    "success": true,
+    "data": "ok"
+   }
+   
+запрос http://yiiapi/api/web/v1/requests/13
+ответ {
+    "success": false,
+    "error": "Для ответа на конкретную задачу требуется id задачи и заполненый комментарий",
+    "param": {
+        "id": "13"
+    },
+    "method": "PUT"
+}
+
+запрос http://yiiapi/api/web/v1/requests
+ответ{
+    "success": false,
+    "error": "Для ответа на конкретную задачу требуется id задачи и заполненый комментарий",
+    "param": [],
+    "method": "PUT"
+}   
+
+МЕТОД DELETE
+запрос http://yiiapi/api/web/v1/requests
+ответ {
+    "success": false,
+    "error": "Для удаления требуется id записи",
+    "param": [],
+    "method": "DELETE"
+}
+
+запрос http://yiiapi/api/web/v1/requests/123214214
+ответ {
+    "success": false,
+    "error": "Задача с номером 123214214 не существует. удалить не возможно",
+    "param": {
+        "id": "123214214"
+    },
+    "method": "DELETE"
+}
+
+запрос http://yiiapi/api/web/v1/requests/10
+ответ {
+    "success": true,
+    "data": "удалена"
+}
+
+
